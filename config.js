@@ -15,8 +15,8 @@ const CONFIG = {
     PASSWORD: 'password123',
 
     // ── 學校資訊 ─────────────────────────────────────────────
-    SCHOOL_NAME: '範例國中',
-    SCHOOL_SUBTITLE: '國中部課表查詢系統',
+    SCHOOL_NAME: '桃園市高原國小',
+    SCHOOL_SUBTITLE: '115學年度課表查詢系統',
 
     // ── 節次時間表 ────────────────────────────────────
     PERIOD_TIMES: [
