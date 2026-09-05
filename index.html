@@ -41,7 +41,10 @@
                 <button type="submit" id="loginBtn" class="btn btn-primary btn-block" style="margin-top:1.25rem">
                     <span id="loginSpinner" class="spinner"></span>登入查詢
                 </button>
-                            </form>
+                <button type="button" id="guestBtn" class="btn btn-ghost btn-block" style="margin-top:0.5rem" onclick="guestLogin()">
+                    訪客登入
+                </button>
+            </form>
         </div>
     </div>
 
@@ -74,15 +77,9 @@
 
             <div id="panelTeacher" class="tab-panel hidden">
                 <div class="form-group">
-                    <label for="subjectSelect">科目</label>
-                    <select id="subjectSelect" class="form-control" onchange="onSubjectChange()">
-                        <option value="">— 選擇科目 —</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label for="teacherSelect">教師</label>
                     <select id="teacherSelect" class="form-control">
-                        <option value="">— 請先選擇科目 —</option>
+                        <option value="">— 選擇教師 —</option>
                     </select>
                 </div>
                 <div id="teacherError" class="alert alert-warning"></div>

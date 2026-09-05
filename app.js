@@ -8,7 +8,6 @@ let homeroomData = {};
 let isLoggedIn = false;
 let navHistory = [];
 let classGroups = {};
-let subjectTeachers = {};
 
 const DAYS = ['一','二','三','四','五'];
 const PERIODS_ALL = [0,1,2,3,4,5,6,7,8];
@@ -217,56 +216,33 @@ function buildCategories() {
     });
     GRADE_NAMES.forEach(g => classGroups[g].sort((a,b) => Number(a) - Number(b)));
 
-    subjectTeachers = {};
-    scheduleData.forEach(row => {
-        for (let d = 1; d <= 5; d++) {
-            for (const p of PERIODS_ALL) {
-                const subj = row[`s${d}${p}`];
-                if (!subj) continue;
-                const base = normalizeSubject(subj);
-                if (!subjectTeachers[base]) subjectTeachers[base] = new Set();
-                subjectTeachers[base].add(row.teachername);
-            }
-        }
-    });
-    Object.keys(subjectTeachers).forEach(k => {
-        subjectTeachers[k] = [...subjectTeachers[k]].sort((a,b) => a.localeCompare(b, 'zh-Hant'));
-    });
 }
 
-function normalizeSubject(subj) {
-    return subj.trim();
-}
 
 function classDisplayName(cls) {
     const m = String(cls).match(/^([1-6])(\d{2})$/);
     if (!m) return cls;
-
-    const gradeZh = ['','一','二','三','四','五','六'];
-    const classZh = {
-        1: '甲',
-        2: '乙',
-        3: '丙',
-        4: '丁',
-        5: '戊'
-    };
-
-    const grade = Number(m[1]);
-    const classNo = Number(m[2]);
-
-    return `${gradeZh[grade]}年${classZh[classNo] || classNo}班`;
+    const zh = ['','一','二','三','四','五','六'];
+    return `${zh[Number(m[1])]}年${Number(m[2])}班`;
 }
 
 function populateQueryUI() {
     GRADE_NAMES.forEach((grade, i) => populateGradeSelect(GRADE_SELECT_IDS[i], classGroups[grade] || []));
-    const subjectSel = document.getElementById('subjectSelect');
-    subjectSel.innerHTML = '<option value="">— 選擇科目 —</option>';
-    Object.keys(subjectTeachers).sort((a,b) => a.localeCompare(b, 'zh-Hant')).forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        subjectSel.appendChild(opt);
-    });
+
+    const teacherSel = document.getElementById('teacherSelect');
+    if (teacherSel) {
+        teacherSel.innerHTML = '<option value="">— 選擇教師 —</option>';
+        scheduleData
+            .map(r => r.teachername)
+            .filter(Boolean)
+            .sort((a, b) => a.localeCompare(b, 'zh-Hant'))
+            .forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                teacherSel.appendChild(opt);
+            });
+    }
 }
 
 function populateGradeSelect(selId, classes) {
@@ -334,27 +310,11 @@ function submitClassQuery() {
     displayClassSchedule(cls);
 }
 
-function onSubjectChange() {
-    const subj = document.getElementById('subjectSelect').value;
-    const teacherSel = document.getElementById('teacherSelect');
-    teacherSel.innerHTML = '<option value="">— 選擇教師 —</option>';
-    if (!subj) return;
-    (subjectTeachers[subj] || []).forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t;
-        opt.textContent = t;
-        teacherSel.appendChild(opt);
-    });
-    const e = document.getElementById('teacherError');
-    e.textContent = '';
-    e.classList.remove('show');
-}
-
 function submitTeacherQuery() {
     const teacher = document.getElementById('teacherSelect').value;
     if (!teacher) {
         const e = document.getElementById('teacherError');
-        e.textContent = '請先選擇科目與教師';
+        e.textContent = '請先選擇教師';
         e.classList.add('show');
         return;
     }
