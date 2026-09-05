@@ -7,8 +7,8 @@ const CONFIG = {
     },
 
     // 登入帳密：可自行修改
-    USERNAME: 'teacher',
-    PASSWORD: 'password123',
+    USERNAME: 'gyps',
+    PASSWORD: 'gyps115',
 
     SCHOOL_NAME: '桃園市高原國小',
     SCHOOL_SUBTITLE: '115學年度課表查詢系統',
