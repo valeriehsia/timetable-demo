@@ -61,6 +61,7 @@
             <div class="tab-bar">
                 <button class="tab-btn active" id="tabClass" onclick="switchTab('class')">🏫 班級查詢</button>
                 <button class="tab-btn" id="tabTeacher" onclick="switchTab('teacher')">👤 教師查詢</button>
+                <button class="tab-btn" id="tabLocation" onclick="switchTab('location')">📍 場地查詢</button>
             </div>
 
             <div id="panelClass" class="tab-panel">
@@ -84,6 +85,17 @@
                 </div>
                 <div id="teacherError" class="alert alert-warning"></div>
                 <button class="btn btn-success btn-block" style="margin-top:1rem" onclick="submitTeacherQuery()">查　詢</button>
+            </div>
+
+            <div id="panelLocation" class="tab-panel hidden">
+                <div class="form-group">
+                    <label for="locationSelect">專科教室／場地</label>
+                    <select id="locationSelect" class="form-control">
+                        <option value="">— 選擇場地 —</option>
+                    </select>
+                </div>
+                <div id="locationError" class="alert alert-warning"></div>
+                <button class="btn btn-success btn-block" style="margin-top:1rem" onclick="submitLocationQuery()">查　詢</button>
             </div>
         </div>
     </div>

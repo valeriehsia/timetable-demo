@@ -198,12 +198,15 @@ function parseCSV(text) {
 }
 
 function buildCategories() {
+    window.locationNames = new Set();
     const allClasses = new Set();
     scheduleData.forEach(row => {
         for (let d = 1; d <= 5; d++) {
             for (const p of PERIODS_ALL) {
                 const classStr = row[`c${d}${p}`];
                 if (classStr) classStr.split(/\s+/).filter(Boolean).forEach(c => allClasses.add(c));
+                const loc = row[`l${d}${p}`];
+                if (loc) window.locationNames.add(loc);
             }
         }
     });
@@ -222,12 +225,34 @@ function buildCategories() {
 function classDisplayName(cls) {
     const m = String(cls).match(/^([1-6])(\d{2})$/);
     if (!m) return cls;
-    const zh = ['','一','二','三','四','五','六'];
-    return `${zh[Number(m[1])]}年${Number(m[2])}班`;
+    const gradeZh = ['','一','二','三','四','五','六'];
+    const classZh = {1:'甲',2:'乙',3:'丙',4:'丁',5:'戊'};
+    const grade = Number(m[1]);
+    const classNo = Number(m[2]);
+    return `${gradeZh[grade]}年${classZh[classNo] || classNo}班`;
 }
 
 function populateQueryUI() {
     GRADE_NAMES.forEach((grade, i) => populateGradeSelect(GRADE_SELECT_IDS[i], classGroups[grade] || []));
+
+    const locationSel = document.getElementById('locationSelect');
+    if (locationSel) {
+        locationSel.innerHTML = '<option value="">— 選擇場地 —</option>';
+        const normalRooms = new Set([
+            '一年甲班','一年乙班','二年甲班','二年乙班','二年丙班',
+            '三年甲班','三年乙班','四年甲班','四年乙班',
+            '五年甲班','五年乙班','五年丙班','六年甲班','六年乙班','六年丙班'
+        ]);
+        [...(window.locationNames || [])]
+            .filter(x => x && !normalRooms.has(x))
+            .sort((a,b) => a.localeCompare(b,'zh-Hant'))
+            .forEach(loc => {
+                const opt = document.createElement('option');
+                opt.value = loc;
+                opt.textContent = loc;
+                locationSel.appendChild(opt);
+            });
+    }
 
     const teacherSel = document.getElementById('teacherSelect');
     if (teacherSel) {
@@ -294,8 +319,10 @@ function resetGradeSelects() {
 function switchTab(tab) {
     document.getElementById('tabClass').classList.toggle('active', tab === 'class');
     document.getElementById('tabTeacher').classList.toggle('active', tab === 'teacher');
+    document.getElementById('tabLocation').classList.toggle('active', tab === 'location');
     document.getElementById('panelClass').classList.toggle('hidden', tab !== 'class');
     document.getElementById('panelTeacher').classList.toggle('hidden', tab !== 'teacher');
+    document.getElementById('panelLocation').classList.toggle('hidden', tab !== 'location');
 }
 
 function submitClassQuery() {
@@ -320,6 +347,58 @@ function submitTeacherQuery() {
     }
     navHistory = [];
     displayTeacherSchedule(teacher);
+}
+
+function submitLocationQuery() {
+    const loc = document.getElementById('locationSelect').value;
+    if (!loc) {
+        const e = document.getElementById('locationError');
+        e.textContent = '請先選擇場地';
+        e.classList.add('show');
+        return;
+    }
+    navHistory = [];
+    displayLocationSchedule(loc);
+}
+
+function displayLocationSchedule(locationName) {
+    navHistory = [];
+    const cells = {};
+    scheduleData.forEach(row => {
+        for (let d=1; d<=5; d++) {
+            for (const p of PERIODS_ALL) {
+                if ((row[`l${d}${p}`] || '') === locationName && row[`s${d}${p}`]) {
+                    const key = `${d}-${p}`;
+                    if (!cells[key]) cells[key] = {subject: row[`s${d}${p}`], items: []};
+                    const cls = row[`c${d}${p}`] || '';
+                    const label = `${classDisplayName(cls)}｜${row.teachername}`;
+                    if (!cells[key].items.includes(label)) cells[key].items.push(label);
+                }
+            }
+        }
+    });
+    scheduleTitle.textContent = `${locationName} 使用課表`;
+    scheduleTableContainer.innerHTML = buildLocationTable(cells);
+    showView('resultView');
+    updateBackBtn();
+}
+
+function buildLocationTable(cells) {
+    const periods = CONFIG.PERIOD_TIMES || [];
+    let html = '<table class="schedule-table"><thead><tr><th class="th-period">節次</th>';
+    DAYS.forEach(d => html += `<th>${d}</th>`);
+    html += '</tr></thead><tbody>';
+    for (let p=1; p<=7; p++) {
+        const pt=periods[p] || {start:'',end:''};
+        html += `<tr><td class="td-period"><div class="period-num">第${p}節</div><div class="period-time">${pt.start}<br>${pt.end}</div></td>`;
+        for (let d=1; d<=5; d++) {
+            const cell=cells[`${d}-${p}`];
+            if (!cell) html += '<td class="td-empty"></td>';
+            else html += `<td class="td-cell"><div class="cell-subject">${htmlText(cell.subject)}</div><div class="cell-items-container">${cell.items.map(htmlText).join('<br>')}</div></td>`;
+        }
+        html += '</tr>';
+    }
+    return html + '</tbody></table>';
 }
 
 function displayClassSchedule(className) {
