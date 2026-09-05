@@ -62,6 +62,7 @@
                 <button class="tab-btn active" id="tabClass" onclick="switchTab('class')">🏫 班級查詢</button>
                 <button class="tab-btn" id="tabTeacher" onclick="switchTab('teacher')">👤 教師查詢</button>
                 <button class="tab-btn" id="tabLocation" onclick="switchTab('location')">📍 場地查詢</button>
+                <button class="tab-btn" id="tabFree" onclick="switchTab('free')">🟢 空堂教師</button>
             </div>
 
             <div id="panelClass" class="tab-panel">
@@ -96,6 +97,35 @@
                 </div>
                 <div id="locationError" class="alert alert-warning"></div>
                 <button class="btn btn-success btn-block" style="margin-top:1rem" onclick="submitLocationQuery()">查　詢</button>
+            </div>
+
+            <div id="panelFree" class="tab-panel hidden">
+                <div class="form-group">
+                    <label for="freeDaySelect">星期</label>
+                    <select id="freeDaySelect" class="form-control">
+                        <option value="">— 選擇星期 —</option>
+                        <option value="1">星期一</option>
+                        <option value="2">星期二</option>
+                        <option value="3">星期三</option>
+                        <option value="4">星期四</option>
+                        <option value="5">星期五</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="freePeriodSelect">節次</label>
+                    <select id="freePeriodSelect" class="form-control">
+                        <option value="">— 選擇節次 —</option>
+                        <option value="1">第1節</option>
+                        <option value="2">第2節</option>
+                        <option value="3">第3節</option>
+                        <option value="4">第4節</option>
+                        <option value="5">第5節</option>
+                        <option value="6">第6節</option>
+                        <option value="7">第7節</option>
+                    </select>
+                </div>
+                <div id="freeError" class="alert alert-warning"></div>
+                <button class="btn btn-success btn-block" style="margin-top:1rem" onclick="submitFreeTeacherQuery()">查詢空堂教師</button>
             </div>
         </div>
     </div>

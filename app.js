@@ -320,9 +320,11 @@ function switchTab(tab) {
     document.getElementById('tabClass').classList.toggle('active', tab === 'class');
     document.getElementById('tabTeacher').classList.toggle('active', tab === 'teacher');
     document.getElementById('tabLocation').classList.toggle('active', tab === 'location');
+    document.getElementById('tabFree').classList.toggle('active', tab === 'free');
     document.getElementById('panelClass').classList.toggle('hidden', tab !== 'class');
     document.getElementById('panelTeacher').classList.toggle('hidden', tab !== 'teacher');
     document.getElementById('panelLocation').classList.toggle('hidden', tab !== 'location');
+    document.getElementById('panelFree').classList.toggle('hidden', tab !== 'free');
 }
 
 function submitClassQuery() {
@@ -347,6 +349,50 @@ function submitTeacherQuery() {
     }
     navHistory = [];
     displayTeacherSchedule(teacher);
+}
+
+function submitFreeTeacherQuery() {
+    const day = Number(document.getElementById('freeDaySelect').value);
+    const period = Number(document.getElementById('freePeriodSelect').value);
+    const e = document.getElementById('freeError');
+
+    if (!day || !period) {
+        e.textContent = '請先選擇星期與節次';
+        e.classList.add('show');
+        return;
+    }
+    e.textContent = '';
+    e.classList.remove('show');
+
+    const freeTeachers = scheduleData
+        .filter(row => !(row[`s${day}${period}`] || '').trim())
+        .map(row => row.teachername)
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+
+    const dayNames = ['', '星期一', '星期二', '星期三', '星期四', '星期五'];
+    const pt = (CONFIG.PERIOD_TIMES || [])[period] || {};
+    const timeText = pt.start && pt.end ? `（${pt.start}–${pt.end}）` : '';
+
+    scheduleTitle.textContent = `${dayNames[day]} 第${period}節${timeText} 空堂教師`;
+
+    if (!freeTeachers.length) {
+        scheduleTableContainer.innerHTML = '<div class="alert alert-warning show">這個時段沒有查到空堂教師。</div>';
+    } else {
+        scheduleTableContainer.innerHTML = `
+            <div style="margin-bottom:1rem;font-weight:700;">共 ${freeTeachers.length} 位教師空堂</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+                ${freeTeachers.map(name => `
+                    <button class="btn btn-ghost" style="padding:.8rem .5rem;" onclick="displayTeacherSchedule('${String(name).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
+                        ${htmlText(name)}
+                    </button>
+                `).join('')}
+            </div>`;
+    }
+
+    navHistory = [];
+    showView('resultView');
+    updateBackBtn();
 }
 
 function submitLocationQuery() {
