@@ -241,8 +241,20 @@ function normalizeSubject(subj) {
 function classDisplayName(cls) {
     const m = String(cls).match(/^([1-6])(\d{2})$/);
     if (!m) return cls;
-    const zh = ['','一','二','三','四','五','六'];
-    return `${zh[Number(m[1])]}年${Number(m[2])}班`;
+
+    const gradeZh = ['','一','二','三','四','五','六'];
+    const classZh = {
+        1: '甲',
+        2: '乙',
+        3: '丙',
+        4: '丁',
+        5: '戊'
+    };
+
+    const grade = Number(m[1]);
+    const classNo = Number(m[2]);
+
+    return `${gradeZh[grade]}年${classZh[classNo] || classNo}班`;
 }
 
 function populateQueryUI() {
